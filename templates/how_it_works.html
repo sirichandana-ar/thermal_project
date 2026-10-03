@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>How It Works - Predictive Thermal Memory</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+
+    <style>
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at 15% 10%,
+                    rgba(53, 224, 208, 0.06),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 85% 20%,
+                    rgba(155, 124, 255, 0.07),
+                    transparent 30%
+                ),
+                #080B14;
+
+            color: #E8F0FF;
+        }
+
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+    </style>
+
+</head>
+
+
+<body class="min-h-screen flex flex-col justify-between pb-24">
+
+
+    <!-- =========================================================
+         HEADER
+    ========================================================== -->
+
+    <header
+        class="sticky top-0 z-30
+        bg-[#080B14]/90 backdrop-blur-md
+        border-b border-[#243044]
+        px-5 py-3.5
+        flex items-center justify-between">
+
+
+        <div class="flex items-center gap-2.5">
+
+            <span
+                class="w-2.5 h-2.5 rounded-full
+                bg-[#35E0D0]
+                animate-pulse">
+            </span>
+
+
+            <span
+                class="text-xs font-mono
+                text-[#8290A8]">
+
+                system &bull; thermal model
+
+            </span>
+
+        </div>
+
+
+        <div
+            class="w-8 h-8 rounded-full
+            bg-[#9B7CFF]/10
+            border border-[#9B7CFF]/30
+            flex items-center justify-center
+            text-[#9B7CFF]
+            text-xs font-bold">
+
+            TM
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================================================
+         MAIN
+    ========================================================== -->
+
+    <main
+        class="px-5 py-5
+        max-w-xl mx-auto
+        w-full space-y-6">
+
+
+        <!-- PAGE TITLE -->
+
+        <div>
+
+            <h1
+                class="text-2xl font-bold
+                tracking-tight text-white">
+
+                How It Works
+
+            </h1>
+
+
+            <p
+                class="text-xs font-mono
+                text-[#8290A8] mt-0.5">
+
+                PREDICTIVE ARCHITECTURE &amp; MODEL SPECS
+
+            </p>
+
+        </div>
+
+
+        <!-- =====================================================
+             4-STAGE PIPELINE
+        ====================================================== -->
+
+        <section
+            class="bg-[#111827]
+            border border-[#243044]
+            rounded-2xl
+            p-5 space-y-4
+            shadow-xl">
+
+
+            <div
+                class="flex items-center
+                justify-between">
+
+                <h2
+                    class="text-xs font-mono
+                    text-[#E8F0FF]
+                    uppercase tracking-wider
+                    flex items-center gap-2">
+
+                    <i
+                        class="fa-solid fa-network-wired
+                        text-[#35E0D0]">
+                    </i>
+
+                    4-Stage Pipeline Flow
+
+                </h2>
+
+
+                <span
+                    class="text-[10px]
+                    font-mono px-2 py-0.5
+                    rounded
+                    bg-[#35E0D0]/10
+                    text-[#35E0D0]
+                    border border-[#35E0D0]/20">
+
+                    software-only
+
+                </span>
+
+            </div>
+
+
+            <div
+                class="relative pl-6
+                space-y-6
+                border-l-2
+                border-[#243044]
+                ml-2 mt-4">
+
+
+                <!-- =================================================
+                     STEP 1
+                ================================================== -->
+
+                <div class="relative">
+
+
+                    <div
+                        class="absolute
+                        -left-[31px]
+                        top-0
+                        w-6 h-6
+                        rounded-full
+                        bg-[#080B14]
+                        border-2
+                        border-[#35E0D0]
+                        flex items-center
+                        justify-center
+                        text-[10px]
+                        text-[#35E0D0]">
+
+                        1
+
+                    </div>
+
+
+                    <div
+                        class="flex items-center
+                        justify-between
+                        text-xs font-mono">
+
+                        <span
+                            class="text-[#35E0D0]
+                            font-bold">
+
+                            Step 01
+
+                        </span>
+
+
+                        <span
+                            class="text-[#59677D]">
+
+                            simulate_data.py / live_feed.py
+
+                        </span>
+
+                    </div>
+
+
+                    <h3
+                        class="text-sm
+                        font-semibold
+                        text-white mt-1">
+
+                        Simulated Sensor Layer
+
+                    </h3>
+
+
+                    <p
+                        class="text-xs
+                        text-[#8290A8]
+                        mt-0.5 leading-relaxed">
+
+                        Generates temperature, humidity, and occupancy
+                        readings. Temperature evolves from the previous
+                        temperature, allowing the simulation to represent
+                        thermal inertia instead of generating each reading
+                        independently.
+
+                    </p>
+
+                </div>
+
+
+                <!-- =================================================
+                     STEP 2
+                ================================================== -->
+
+                <div class="relative">
+
+
+                    <div
+                        class="absolute
+                        -left-[31px]
+                        top-0
+                        w-6 h-6
+                        rounded-full
+                        bg-[#080B14]
+                        border-2
+                        border-[#9B7CFF]
+                        flex items-center
+                        justify-center
+                        text-[10px]
+                        text-[#9B7CFF]">
+
+                        2
+
+                    </div>
+
+
+                    <div
+                        class="flex items-center
+                        justify-between
+                        text-xs font-mono">
+
+                        <span
+                            class="text-[#9B7CFF]
+                            font-bold">
+
+                            Step 02
+
+                        </span>
+
+
+                        <span
+                            class="text-[#59677D]">
+
+                            thermal_memory.db
+
+                        </span>
+
+                    </div>
+
+
+                    <h3
+                        class="text-sm
+                        font-semibold
+                        text-white mt-1">
+
+                        SQLite Memory Store
+
+                    </h3>
+
+
+                    <p
+                        class="text-xs
+                        text-[#8290A8]
+                        mt-0.5 leading-relaxed">
+
+                        Every sensor reading is timestamped and stored in
+                        SQLite. Before prediction, the recent readings are
+                        aligned to a consistent 15-minute model grid so
+                        temperature lags represent meaningful time intervals.
+
+                    </p>
+
+                </div>
+
+
+                <!-- =================================================
+                     STEP 3
+                ================================================== -->
+
+                <div class="relative">
+
+
+                    <div
+                        class="absolute
+                        -left-[31px]
+                        top-0
+                        w-6 h-6
+                        rounded-full
+                        bg-[#080B14]
+                        border-2
+                        border-[#FFC857]
+                        flex items-center
+                        justify-center
+                        text-[10px]
+                        text-[#FFC857]">
+
+                        3
+
+                    </div>
+
+
+                    <div
+                        class="flex items-center
+                        justify-between
+                        text-xs font-mono">
+
+                        <span
+                            class="text-[#FFC857]
+                            font-bold">
+
+                            Step 03
+
+                        </span>
+
+
+                        <span
+                            class="text-[#59677D]">
+
+                            train_model.py
+
+                        </span>
+
+                    </div>
+
+
+                    <h3
+                        class="text-sm
+                        font-semibold
+                        text-white mt-1">
+
+                        Random Forest Regressor
+
+                    </h3>
+
+
+                    <p
+                        class="text-xs
+                        text-[#8290A8]
+                        mt-0.5 leading-relaxed">
+
+                        The model learns from thermal-memory and context
+                        features including previous temperatures,
+                        rolling temperature averages, hour, day of week,
+                        occupancy, and occupancy trend.
+
+                    </p>
+
+
+                    <div
+                        class="mt-2
+                        bg-[#080B14]
+                        border border-[#243044]
+                        rounded-lg p-2.5">
+
+                        <p
+                            class="text-[10px]
+                            font-mono
+                            text-[#8290A8]">
+
+                            10 MODEL FEATURES
+
+                        </p>
+
+
+                        <p
+                            class="text-[10px]
+                            font-mono
+                            text-[#AAB7CC]
+                            mt-1 leading-relaxed">
+
+                            temperature lags
+                            &bull;
+                            rolling temperature
+                            &bull;
+                            occupancy
+                            &bull;
+                            time features
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     STEP 4
+                ================================================== -->
+
+                <div class="relative">
+
+
+                    <div
+                        class="absolute
+                        -left-[31px]
+                        top-0
+                        w-6 h-6
+                        rounded-full
+                        bg-[#080B14]
+                        border-2
+                        border-[#FF6B5E]
+                        flex items-center
+                        justify-center
+                        text-[10px]
+                        text-[#FF6B5E]">
+
+                        4
+
+                    </div>
+
+
+                    <div
+                        class="flex items-center
+                        justify-between
+                        text-xs font-mono">
+
+                        <span
+                            class="text-[#FF6B5E]
+                            font-bold">
+
+                            Step 04
+
+                        </span>
+
+
+                        <span
+                            class="text-[#59677D]">
+
+                            app.py
+
+                        </span>
+
+                    </div>
+
+
+                    <h3
+                        class="text-sm
+                        font-semibold
+                        text-white mt-1">
+
+                        60-Minute Predictive Decision
+
+                    </h3>
+
+
+                    <p
+                        class="text-xs
+                        text-[#8290A8]
+                        mt-0.5 leading-relaxed">
+
+                        The model predicts four consecutive 15-minute
+                        temperature steps. These predictions form a
+                        60-minute forecast, which is compared with the
+                        configured target temperature and passed to the
+                        selected HVAC control strategy.
+
+                    </p>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             THERMAL MEMORY EXPLANATION
+        ====================================================== -->
+
+        <section
+            class="bg-[#111827]
+            border border-[#243044]
+            rounded-2xl
+            p-5 space-y-4
+            shadow-xl">
+
+
+            <div
+                class="flex items-center
+                justify-between">
+
+                <h2
+                    class="text-xs font-mono
+                    text-[#E8F0FF]
+                    uppercase tracking-wider
+                    flex items-center gap-2">
+
+                    <i
+                        class="fa-solid fa-memory
+                        text-[#9B7CFF]">
+                    </i>
+
+                    Thermal Memory
+
+                </h2>
+
+
+                <span
+                    class="text-[10px]
+                    font-mono
+                    text-[#59677D]">
+
+                    core concept
+
+                </span>
+
+            </div>
+
+
+            <p
+                class="text-xs
+                text-[#8290A8]
+                leading-relaxed">
+
+                The system does not treat each temperature reading as an
+                isolated value. Recent temperature history becomes part of
+                the next prediction through lag and rolling features.
+
+            </p>
+
+
+            <div
+                class="bg-[#080B14]
+                border border-[#243044]
+                rounded-lg p-3">
+
+                <p
+                    class="text-[10px]
+                    font-mono
+                    text-[#35E0D0]">
+
+                    EXAMPLE
+
+                </p>
+
+
+                <p
+                    class="text-[11px]
+                    font-mono
+                    text-[#AAB7CC]
+                    mt-1">
+
+                    T<sub>now</sub>
+                    &rarr;
+                    previous 15-min temperature
+                    &rarr;
+                    next prediction
+
+                </p>
+
+            </div>
+
+
+            <p
+                class="text-[10px]
+                text-[#59677D]
+                leading-relaxed">
+
+                This historical dependency is what gives the project its
+                "thermal memory" behavior.
+
+            </p>
+
+        </section>
+
+
+        <!-- =====================================================
+             FEATURE IMPORTANCE
+        ====================================================== -->
+
+        <section
+            class="bg-[#111827]
+            border border-[#243044]
+            rounded-2xl
+            p-5 space-y-4
+            shadow-xl">
+
+
+            <div
+                class="flex items-center
+                justify-between">
+
+                <h2
+                    class="text-xs font-mono
+                    text-[#E8F0FF]
+                    uppercase tracking-wider
+                    flex items-center gap-2">
+
+                    <i
+                        class="fa-solid fa-chart-column
+                        text-[#35E0D0]">
+                    </i>
+
+                    Feature Importance Matrix
+
+                </h2>
+
+
+                <span
+                    class="text-[10px]
+                    font-mono
+                    text-[#8290A8]">
+
+                    Random Forest
+
+                </span>
+
+            </div>
+
+
+            <div
+                class="space-y-3
+                font-mono text-xs">
+
+
+                {% for f in meta.features %}
+
+                <div>
+
+
+                    <div
+                        class="flex justify-between
+                        mb-1">
+
+                        <span
+                            class="text-white">
+
+                            {{ f.label }}
+
+                        </span>
+
+
+                        <span
+                            class="{% if loop.first %}
+                                text-[#9B7CFF]
+                            {% else %}
+                                text-[#35E0D0]
+                            {% endif %}
+                            font-bold">
+
+                            {{ (f.value * 100)|round(2) }}%
+
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        class="w-full
+                        bg-[#080B14]
+                        h-2 rounded-full
+                        overflow-hidden
+                        border border-[#243044]">
+
+
+                        <div
+                            class="{% if loop.first %}
+                                bg-[#9B7CFF]
+                            {% else %}
+                                bg-[#35E0D0]
+                            {% endif %}
+                            h-full rounded-full"
+                            style="width: {{ (f.value * 100)|round(2) }}%">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+
+            <div
+                class="bg-[#FFC857]/5
+                border border-[#FFC857]/15
+                rounded-lg p-3">
+
+
+                <p
+                    class="text-[10px]
+                    text-[#FFC857]
+                    leading-relaxed">
+
+                    Feature importance shows how the trained Random Forest
+                    used the available features on this dataset. It does
+                    not mean that a feature independently causes temperature
+                    changes.
+
+                </p>
+
+            </div>
+
+
+            <p
+                class="text-[10px]
+                text-[#59677D]
+                leading-relaxed">
+
+                Importances come directly from
+                <code class="text-[#35E0D0]">
+                    model.feature_importances_
+                </code>.
+                They can change when the dataset or trained model changes.
+
+            </p>
+
+        </section>
+
+
+        <!-- =====================================================
+             MODEL EVALUATION
+        ====================================================== -->
+
+        <section
+            class="bg-[#111827]
+            border border-[#243044]
+            rounded-2xl
+            p-5 space-y-4
+            shadow-xl">
+
+
+            <div
+                class="flex items-center
+                justify-between">
+
+                <h2
+                    class="text-xs font-mono
+                    text-[#E8F0FF]
+                    uppercase tracking-wider
+                    flex items-center gap-2">
+
+                    <i
+                        class="fa-solid fa-chart-line
+                        text-[#9B7CFF]">
+                    </i>
+
+                    Model Evaluation
+
+                </h2>
+
+
+                <span
+                    class="text-[10px]
+                    font-mono
+                    text-[#59677D]">
+
+                    held-out test set
+
+                </span>
+
+            </div>
+
+
+            <div
+                class="grid grid-cols-2
+                gap-3">
+
+
+                <div
+                    class="bg-[#080B14]
+                    border border-[#243044]
+                    rounded-xl p-3">
+
+                    <p
+                        class="text-[10px]
+                        font-mono
+                        text-[#8290A8]">
+
+                        PERSISTENCE MAE
+
+                    </p>
+
+
+                    <p
+                        class="text-xl
+                        font-bold
+                        font-mono
+                        text-[#FFC857]
+                        mt-1">
+
+                        0.2180&deg;C
+
+                    </p>
+
+                </div>
+
+
+                <div
+                    class="bg-[#080B14]
+                    border border-[#243044]
+                    rounded-xl p-3">
+
+                    <p
+                        class="text-[10px]
+                        font-mono
+                        text-[#8290A8]">
+
+                        RF MAE
+
+                    </p>
+
+
+                    <p
+                        class="text-xl
+                        font-bold
+                        font-mono
+                        text-[#35E0D0]
+                        mt-1">
+
+                        {{ meta.mae }}&deg;C
+
+                    </p>
+
+                </div>
+
+
+                <div
+                    class="bg-[#080B14]
+                    border border-[#243044]
+                    rounded-xl p-3">
+
+                    <p
+                        class="text-[10px]
+                        font-mono
+                        text-[#8290A8]">
+
+                        RF RMSE
+
+                    </p>
+
+
+                    <p
+                        class="text-xl
+                        font-bold
+                        font-mono
+                        text-[#9B7CFF]
+                        mt-1">
+
+                        {{ meta.rmse }}&deg;C
+
+                    </p>
+
+                </div>
+
+
+                <div
+                    class="bg-[#080B14]
+                    border border-[#243044]
+                    rounded-xl p-3">
+
+                    <p
+                        class="text-[10px]
+                        font-mono
+                        text-[#8290A8]">
+
+                        IMPROVEMENT
+
+                    </p>
+
+
+                    <p
+                        class="text-xl
+                        font-bold
+                        font-mono
+                        text-[#FF6B5E]
+                        mt-1">
+
+                        18.14%
+
+                    </p>
+
+                    <p
+                        class="text-[9px]
+                        text-[#59677D]
+                        mt-1">
+
+                        vs persistence baseline
+
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <p
+                class="text-[10px]
+                text-[#59677D]
+                leading-relaxed">
+
+                The model was evaluated using a chronological train/test
+                split. The Random Forest achieved a lower MAE than the
+                persistence baseline on the generated test dataset.
+
+            </p>
+
+        </section>
+
+
+        <!-- =====================================================
+             MODEL CHECKPOINT
+        ====================================================== -->
+
+        <section
+            class="bg-[#111827]
+            border border-[#243044]
+            rounded-2xl
+            p-5 space-y-3
+            shadow-xl">
+
+
+            <h2
+                class="text-xs font-mono
+                text-[#E8F0FF]
+                uppercase tracking-wider
+                flex items-center gap-2">
+
+                <i
+                    class="fa-solid fa-microchip
+                    text-[#35E0D0]">
+                </i>
+
+                Model Checkpoint
+
+            </h2>
+
+
+            <div
+                class="bg-[#080B14]
+                border border-[#243044]
+                rounded-lg p-3
+                font-mono text-[11px]
+                text-[#35E0D0]
+                overflow-x-auto">
+
+
+                file: {{ meta.checkpoint }}<br>
+
+                estimators: {{ meta.estimators }}<br>
+
+                mae: {{ meta.mae }}&deg;C
+                &nbsp;
+                rmse: {{ meta.rmse }}&deg;C<br>
+
+                trained_on_rows: {{ meta.trained_on_rows }}
+
+
+            </div>
+
+
+            <p
+                class="text-xs
+                text-[#8290A8]
+                leading-relaxed">
+
+                Retrain the model after regenerating the dataset when the
+                training data changes.
+
+            </p>
+
+
+            <div
+                class="bg-[#080B14]
+                border border-[#243044]
+                rounded-lg p-3
+                font-mono text-[11px]">
+
+
+                <p class="text-[#35E0D0]">
+
+                    python simulate_data.py
+
+                </p>
+
+
+                <p
+                    class="text-[#9B7CFF]
+                    mt-2">
+
+                    python train_model.py
+
+                </p>
+
+
+                <p
+                    class="text-[#FFC857]
+                    mt-2">
+
+                    python app.py
+
+                </p>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- =========================================================
+         BOTTOM NAVIGATION
+    ========================================================== -->
+
+    <nav
+        class="fixed bottom-0
+        inset-x-0
+        bg-[#080B14]/95
+        backdrop-blur-lg
+        border-t border-[#243044]
+        px-6 py-3
+        flex justify-around
+        items-center
+        z-40
+        max-w-xl mx-auto">
+
+
+        <a
+            href="/"
+            class="flex flex-col
+            items-center gap-1
+            text-[#8290A8]
+            hover:text-[#35E0D0]
+            transition">
+
+            <i
+                class="fa-solid fa-chart-line text-sm">
+            </i>
+
+            <span
+                class="text-[10px]
+                font-mono">
+
+                Overview
+
+            </span>
+
+        </a>
+
+
+        <a
+            href="/history"
+            class="flex flex-col
+            items-center gap-1
+            text-[#8290A8]
+            hover:text-[#35E0D0]
+            transition">
+
+            <i
+                class="fa-solid fa-clock-rotate-left text-sm">
+            </i>
+
+            <span
+                class="text-[10px]
+                font-mono">
+
+                History
+
+            </span>
+
+        </a>
+
+
+        <a
+            href="/controls"
+            class="flex flex-col
+            items-center gap-1
+            text-[#8290A8]
+            hover:text-[#35E0D0]
+            transition">
+
+            <i
+                class="fa-solid fa-sliders text-sm">
+            </i>
+
+            <span
+                class="text-[10px]
+                font-mono">
+
+                Controls
+
+            </span>
+
+        </a>
+
+
+        <a
+            href="/how-it-works"
+            class="flex flex-col
+            items-center gap-1
+            text-[#9B7CFF]
+            transition">
+
+            <i
+                class="fa-solid fa-brain text-sm">
+            </i>
+
+            <span
+                class="text-[10px]
+                font-mono font-bold">
+
+                Model
+
+            </span>
+
+        </a>
+
+    </nav>
+
+
+</body>
+
+</html>

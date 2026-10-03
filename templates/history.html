@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>History - Predictive Thermal Memory</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at 15% 10%,
+                    rgba(53, 224, 208, 0.06),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 85% 20%,
+                    rgba(155, 124, 255, 0.07),
+                    transparent 30%
+                ),
+                #080B14;
+
+            color: #E8F0FF;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .engineering-panel {
+            background: linear-gradient(
+                145deg,
+                #111827 0%,
+                #0D1421 100%
+            );
+
+            border: 1px solid #243044;
+        }
+
+        .cyan-glow {
+            box-shadow:
+                0 0 18px rgba(53, 224, 208, 0.06);
+        }
+
+    </style>
+
+</head>
+
+
+<body class="min-h-screen flex flex-col justify-between pb-24">
+
+
+    <!-- =====================================================
+         TOP HEADER
+         ===================================================== -->
+
+    <header
+        class="sticky top-0 z-30 bg-[#080B14]/90 backdrop-blur-md
+        border-b border-[#243044] px-5 py-3.5
+        flex items-center justify-between">
+
+        <div class="flex items-center gap-2.5">
+
+            <span
+                class="w-2 h-2 rounded-full bg-[#35E0D0] animate-pulse">
+            </span>
+
+            <span class="text-xs font-mono text-[#8290A8]">
+                live &bull; archive refresh 8s
+            </span>
+
+        </div>
+
+
+        <div
+            class="w-8 h-8 rounded-full
+            bg-[#9B7CFF]/10
+            border border-[#9B7CFF]/30
+            flex items-center justify-center
+            text-[#9B7CFF] text-xs font-bold">
+
+            TM
+
+        </div>
+
+    </header>
+
+
+    <main class="px-5 py-5 max-w-xl mx-auto w-full space-y-5">
+
+
+        <!-- =====================================================
+             PAGE TITLE
+             ===================================================== -->
+
+        <div class="flex items-center justify-between">
+
+            <div>
+
+                <h1 class="text-2xl font-bold tracking-tight text-white">
+                    History
+                </h1>
+
+                <p class="text-xs font-mono text-[#8290A8] mt-0.5">
+                    THERMAL TELEMETRY ARCHIVE
+                </p>
+
+            </div>
+
+
+            <a
+                href="/api/export/csv"
+                class="flex items-center gap-1.5
+                px-3 py-1.5 rounded-lg
+                bg-[#111827]
+                border border-[#243044]
+                hover:border-[#35E0D0]
+                text-xs font-mono
+                text-[#AAB7CC]
+                hover:text-[#35E0D0]
+                transition">
+
+                <i class="fa-solid fa-file-arrow-down text-[#35E0D0]"></i>
+
+                Export CSV
+
+            </a>
+
+        </div>
+
+
+        <!-- =====================================================
+             DIAGNOSTIC STATS
+             ===================================================== -->
+
+        <div class="grid grid-cols-2 gap-3">
+
+
+            <!-- Logged Records -->
+
+            <div
+                class="engineering-panel rounded-xl p-3.5 cyan-glow">
+
+                <p
+                    class="text-[10px] font-mono
+                    text-[#8290A8]
+                    uppercase tracking-wider">
+
+                    Logged Records
+
+                </p>
+
+
+                <p
+                    class="text-2xl font-bold text-white
+                    font-mono mt-1"
+                    id="totalRecords">
+
+                    {{ summary.total_records }}
+
+                </p>
+
+            </div>
+
+
+            <!-- Recent MAE -->
+
+            <div
+                class="engineering-panel rounded-xl p-3.5">
+
+                <p
+                    class="text-[10px] font-mono
+                    text-[#8290A8]
+                    uppercase tracking-wider">
+
+                    Recent MAE
+
+                </p>
+
+
+                <p
+                    class="text-2xl font-bold text-[#35E0D0]
+                    font-mono mt-1">
+
+                    <span id="maeValue">
+                        {{ summary.mae }}
+                    </span>
+
+                    <span
+                        class="text-sm font-normal text-[#8290A8]">
+
+                        &deg;C
+
+                    </span>
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             MODEL PERFORMANCE NOTE
+             ===================================================== -->
+
+        <div
+            class="engineering-panel rounded-xl p-3.5
+            border-[#9B7CFF]/20">
+
+            <div class="flex items-start gap-2">
+
+                <i
+                    class="fa-solid fa-chart-line
+                    text-[#9B7CFF] text-xs mt-0.5">
+                </i>
+
+
+                <div>
+
+                    <p
+                        class="text-[11px] font-semibold
+                        text-[#E8F0FF] mb-1">
+
+                        Prediction error
+
+                    </p>
+
+
+                    <p
+                        class="text-[10px] leading-relaxed
+                        text-[#8290A8]">
+
+                        Recent MAE shows the average absolute difference
+                        between the recorded temperature and the model
+                        prediction for the readings currently returned
+                        by the history API.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             SEARCH
+             ===================================================== -->
+
+        <div class="flex gap-2">
+
+            <div class="relative flex-1">
+
+                <i
+                    class="fa-solid fa-magnifying-glass
+                    absolute left-3 top-3
+                    text-[#59677D] text-xs">
+                </i>
+
+
+                <input
+                    id="searchInput"
+                    type="text"
+                    placeholder="Filter by timestamp..."
+                    class="w-full
+                    bg-[#111827]
+                    border border-[#243044]
+                    rounded-xl
+                    pl-9 pr-4 py-2
+                    text-xs font-mono
+                    text-[#E8F0FF]
+                    placeholder-[#59677D]
+                    focus:outline-none
+                    focus:border-[#35E0D0]">
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             TELEMETRY TABLE
+             ===================================================== -->
+
+        <div
+            class="engineering-panel rounded-2xl
+            overflow-hidden shadow-xl">
+
+
+            <!-- Table Header -->
+
+            <div
+                class="px-4 py-3
+                border-b border-[#243044]
+                flex items-center justify-between">
+
+                <span
+                    class="text-xs font-mono text-[#AAB7CC]">
+
+                    Thermal Memory Ledger
+
+                </span>
+
+
+                <span
+                    class="text-[10px] font-mono
+                    text-[#35E0D0]
+                    bg-[#35E0D0]/5
+                    px-2 py-0.5 rounded
+                    border border-[#35E0D0]/15"
+                    id="shownCount">
+
+                    {{ readings|length }} shown
+
+                </span>
+
+            </div>
+
+
+            <!-- Table -->
+
+            <div class="overflow-x-auto">
+
+                <table
+                    class="w-full text-left border-collapse"
+                    id="telemetryTable">
+
+
+                    <thead>
+
+                        <tr
+                            class="border-b border-[#243044]
+                            text-[10px] font-mono
+                            text-[#8290A8]
+                            bg-[#0D1421]">
+
+                            <th class="py-2.5 px-4">
+                                TIMESTAMP
+                            </th>
+
+                            <th class="py-2.5 px-3">
+                                ACTUAL
+                            </th>
+
+                            <th class="py-2.5 px-3">
+                                PREDICTED
+                            </th>
+
+                            <th
+                                class="py-2.5 px-4 text-right">
+
+                                DELTA
+
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody
+                        class="text-xs font-mono
+                        divide-y divide-[#243044]/60">
+
+
+                        {% if readings %}
+
+                            {% for row in readings %}
+
+                            <tr
+                                class="hover:bg-[#182233]/50 transition">
+
+
+                                <!-- Timestamp -->
+
+                                <td
+                                    class="py-3 px-4
+                                    text-[#AAB7CC]
+                                    text-[11px]">
+
+                                    {{ row.timestamp }}
+
+                                </td>
+
+
+                                <!-- Actual -->
+
+                                <td
+                                    class="py-3 px-3
+                                    font-semibold
+                                    text-[#35E0D0]">
+
+                                    {{ row.temperature }}&deg;C
+
+                                </td>
+
+
+                                <!-- Predicted -->
+
+                                <td
+                                    class="py-3 px-3
+                                    text-[#9B7CFF]">
+
+                                    {{ row.predicted_temp }}&deg;C
+
+                                </td>
+
+
+                                <!-- Delta -->
+
+                                <td class="py-3 px-4 text-right">
+
+                                    <span
+                                        class="px-1.5 py-0.5
+                                        rounded text-[10px]
+                                        font-mono
+
+                                        {% if row.delta > 0 %}
+
+                                            bg-[#FFC857]/10
+                                            text-[#FFC857]
+                                            border border-[#FFC857]/20
+
+                                        {% else %}
+
+                                            bg-[#35E0D0]/10
+                                            text-[#35E0D0]
+                                            border border-[#35E0D0]/20
+
+                                        {% endif %}">
+
+                                        {{ "+" if row.delta > 0 else "" }}{{ row.delta }}&deg;
+
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+
+                        {% else %}
+
+                            <tr>
+
+                                <td
+                                    colspan="4"
+                                    class="py-6 px-4
+                                    text-center
+                                    text-[#59677D]">
+
+                                    No readings yet &mdash;
+                                    run simulate_data.py first.
+
+                                </td>
+
+                            </tr>
+
+                        {% endif %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- =====================================================
+         BOTTOM NAVIGATION
+         ===================================================== -->
+
+    <nav
+        class="fixed bottom-0 inset-x-0
+        bg-[#080B14]/95 backdrop-blur-lg
+        border-t border-[#243044]
+        px-6 py-3
+        flex justify-around items-center
+        z-40 max-w-xl mx-auto">
+
+
+        <!-- Overview -->
+
+        <a
+            href="/"
+            class="flex flex-col items-center gap-1
+            text-[#8290A8]
+            hover:text-[#35E0D0]
+            transition">
+
+            <i class="fa-solid fa-chart-line text-sm"></i>
+
+            <span class="text-[10px] font-mono">
+                Overview
+            </span>
+
+        </a>
+
+
+        <!-- History -->
+
+        <a
+            href="/history"
+            class="flex flex-col items-center gap-1
+            text-[#35E0D0]
+            transition">
+
+            <i class="fa-solid fa-clock-rotate-left text-sm"></i>
+
+            <span class="text-[10px] font-mono font-bold">
+                History
+            </span>
+
+        </a>
+
+
+        <!-- Controls -->
+
+        <a
+            href="/controls"
+            class="flex flex-col items-center gap-1
+            text-[#8290A8]
+            hover:text-[#35E0D0]
+            transition">
+
+            <i class="fa-solid fa-sliders text-sm"></i>
+
+            <span class="text-[10px] font-mono">
+                Controls
+            </span>
+
+        </a>
+
+
+        <!-- Model -->
+
+        <a
+            href="/how-it-works"
+            class="flex flex-col items-center gap-1
+            text-[#8290A8]
+            hover:text-[#35E0D0]
+            transition">
+
+            <i class="fa-solid fa-brain text-sm"></i>
+
+            <span class="text-[10px] font-mono">
+                Model
+            </span>
+
+        </a>
+
+    </nav>
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+         ===================================================== -->
+
+    <script>
+
+        const REFRESH_SECONDS = 8;
+
+
+        // -------------------------------------------------
+        // CREATE TABLE ROW
+        // -------------------------------------------------
+
+        function rowHtml(row) {
+
+            const deltaPositive =
+                Number(row.delta) > 0;
+
+
+            const deltaClass =
+                deltaPositive
+
+                    ? 'bg-[#FFC857]/10 text-[#FFC857] border border-[#FFC857]/20'
+
+                    : 'bg-[#35E0D0]/10 text-[#35E0D0] border border-[#35E0D0]/20';
+
+
+            const deltaSign =
+                deltaPositive ? '+' : '';
+
+
+            return `
+
+                <tr
+                    class="hover:bg-[#182233]/50 transition">
+
+                    <td
+                        class="py-3 px-4
+                        text-[#AAB7CC]
+                        text-[11px]">
+
+                        ${row.timestamp}
+
+                    </td>
+
+
+                    <td
+                        class="py-3 px-3
+                        font-semibold
+                        text-[#35E0D0]">
+
+                        ${row.temperature}&deg;C
+
+                    </td>
+
+
+                    <td
+                        class="py-3 px-3
+                        text-[#9B7CFF]">
+
+                        ${row.predicted_temp}&deg;C
+
+                    </td>
+
+
+                    <td
+                        class="py-3 px-4
+                        text-right">
+
+                        <span
+                            class="px-1.5 py-0.5
+                            rounded text-[10px]
+                            font-mono ${deltaClass}">
+
+                            ${deltaSign}${row.delta}&deg;
+
+                        </span>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+
+
+        // -------------------------------------------------
+        // LOAD HISTORY
+        // -------------------------------------------------
+
+        async function loadHistory() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        '/api/readings',
+                        {
+                            cache: 'no-store'
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (data.error) {
+
+                    console.error(
+                        'History API error:',
+                        data.error
+                    );
+
+                    return;
+
+                }
+
+
+                // Update statistics
+
+                document
+                    .getElementById('totalRecords')
+                    .textContent =
+                    data.summary.total_records;
+
+
+                document
+                    .getElementById('maeValue')
+                    .textContent =
+                    data.summary.mae;
+
+
+                document
+                    .getElementById('shownCount')
+                    .textContent =
+                    data.readings.length +
+                    ' shown';
+
+
+                // Update table
+
+                const tbody =
+                    document.querySelector(
+                        '#telemetryTable tbody'
+                    );
+
+
+                if (
+                    !data.readings ||
+                    data.readings.length === 0
+                ) {
+
+                    tbody.innerHTML = `
+
+                        <tr>
+
+                            <td
+                                colspan="4"
+                                class="py-6 px-4
+                                text-center
+                                text-[#59677D]">
+
+                                No readings yet &mdash;
+                                run simulate_data.py first.
+
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                } else {
+
+                    tbody.innerHTML =
+                        data.readings
+                            .map(rowHtml)
+                            .join('');
+
+                }
+
+
+                // Re-apply search
+
+                const query =
+                    document
+                        .getElementById('searchInput')
+                        .value
+                        .toLowerCase();
+
+
+                if (query) {
+
+                    document
+                        .querySelectorAll(
+                            '#telemetryTable tbody tr'
+                        )
+                        .forEach(row => {
+
+                            row.style.display =
+                                row.textContent
+                                    .toLowerCase()
+                                    .includes(query)
+                                    ? ''
+                                    : 'none';
+
+                        });
+
+                }
+
+
+            } catch (error) {
+
+                console.error(
+                    'History refresh failed:',
+                    error
+                );
+
+            }
+
+        }
+
+
+        // -------------------------------------------------
+        // SEARCH
+        // -------------------------------------------------
+
+        document
+            .getElementById('searchInput')
+            .addEventListener(
+                'input',
+                (event) => {
+
+                    const query =
+                        event.target.value
+                            .toLowerCase();
+
+
+                    document
+                        .querySelectorAll(
+                            '#telemetryTable tbody tr'
+                        )
+                        .forEach(row => {
+
+                            row.style.display =
+                                row.textContent
+                                    .toLowerCase()
+                                    .includes(query)
+                                    ? ''
+                                    : 'none';
+
+                        });
+
+                }
+            );
+
+
+        // Initial load
+
+        loadHistory();
+
+
+        // Refresh history every 8 seconds
+
+        setInterval(
+            loadHistory,
+            REFRESH_SECONDS * 1000
+        );
+
+    </script>
+
+</body>
+
+</html>
