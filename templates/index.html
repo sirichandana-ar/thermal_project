@@ -14,6 +14,37 @@
     box-shadow:
       0 12px 35px rgba(0, 0, 0, 0.22),
       inset 0 1px 0 rgba(255,255,255,0.02);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 32%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--teal), var(--violet));
+    opacity: 0.8;
+  }
+
+  .page-kicker {
+    margin: 0 0 7px;
+    color: var(--teal);
+    font: 10px 'IBM Plex Mono', monospace;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  header.page-header h1 {
+    font-size: clamp(24px, 3vw, 30px);
+    letter-spacing: -0.035em;
+  }
+
+  .live-pill {
+    border-color: rgba(53, 224, 208, 0.2);
+    background: rgba(53, 224, 208, 0.045);
   }
 
   .hero-top {
@@ -202,13 +233,20 @@
 
   .grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 300px;
-    gap: 20px;
+    grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.8fr);
+    gap: 18px;
+    margin-top: 18px;
   }
 
   @media (max-width: 860px) {
     .grid {
       grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .health-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
@@ -235,6 +273,65 @@
     display: flex;
     align-items: center;
     gap: 8px;
+  }
+
+  .health-panel {
+    margin-top: 18px;
+  }
+
+  .health-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .health-item {
+    min-width: 0;
+    padding: 13px 14px;
+    border: 1px solid var(--panel-line);
+    border-radius: 10px;
+    background: rgba(8, 11, 20, 0.44);
+  }
+
+  .health-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--ash);
+    font-size: 11px;
+  }
+
+  .health-value {
+    display: block;
+    margin-top: 8px;
+    color: var(--paper);
+    font: 12px 'IBM Plex Mono', monospace;
+    overflow-wrap: anywhere;
+  }
+
+  .health-state-dot {
+    width: 7px;
+    height: 7px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: var(--ash);
+  }
+
+  .health-state-dot.ready {
+    background: var(--teal);
+    box-shadow: 0 0 8px rgba(53, 224, 208, 0.45);
+  }
+
+  .health-state-dot.unavailable,
+  .health-state-dot.degraded {
+    background: var(--ember);
+  }
+
+  .health-note {
+    margin: 12px 0 0;
+    color: var(--ash);
+    font-size: 11px;
+    line-height: 1.5;
   }
 
   .occ-dot {
@@ -348,6 +445,16 @@
     cursor: default;
   }
 
+  @media (min-width: 1100px) {
+    .hero {
+      padding: 36px clamp(28px, 5vw, 56px);
+    }
+
+    .gauge-wrap {
+      max-width: 900px;
+    }
+  }
+
 {% endblock %}
 
 
@@ -358,17 +465,18 @@
     style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;"
   >
     <div>
+      <p class="page-kicker">Indoor climate intelligence</p>
       <h1>Dashboard</h1>
 
       <p class="subtitle">
-        Learns this room's thermal rhythm to anticipate temperature changes,
-        rather than reacting after the room becomes uncomfortable.
+        A one-hour thermal outlook, informed by recent room history and
+        occupancy patterns.
       </p>
     </div>
 
     <div class="live-pill">
       <span class="live-dot"></span>
-      <span class="mono" id="liveStatus">connecting&hellip;</span>
+      <span class="mono" id="liveStatus">demo &middot; connecting&hellip;</span>
     </div>
   </header>
 
@@ -553,6 +661,47 @@
 
   </div>
 
+  <section class="panel health-panel" aria-labelledby="healthHeading">
+    <h2 id="healthHeading">System health</h2>
+    <p class="panel-sub">
+      Application components and the latest reading in the local store.
+    </p>
+
+    <div class="health-grid" aria-live="polite">
+      <div class="health-item">
+        <span class="health-label">
+          <span class="health-state-dot {{ 'ready' if model_ready else 'unavailable' }}" id="modelHealthDot"></span>
+          Prediction model
+        </span>
+        <span class="health-value" id="modelHealthValue">
+          {{ 'Loaded' if model_ready else 'Unavailable' }}
+        </span>
+      </div>
+
+      <div class="health-item">
+        <span class="health-label">
+          <span class="health-state-dot" id="databaseHealthDot"></span>
+          Telemetry database
+        </span>
+        <span class="health-value" id="databaseHealthValue">Checking&hellip;</span>
+      </div>
+
+      <div class="health-item">
+        <span class="health-label">Stored readings</span>
+        <span class="health-value" id="readingCountValue">—</span>
+      </div>
+
+      <div class="health-item">
+        <span class="health-label">Latest reading</span>
+        <span class="health-value" id="latestReadingValue">—</span>
+      </div>
+    </div>
+
+    <p class="health-note">
+      Demo environment · generated sensor readings; no physical sensor or HVAC controller is connected.
+    </p>
+  </section>
+
 
   <div
     class="panel"
@@ -638,15 +787,46 @@ async function loadDashboard() {
 
   const [
     historyRes,
-    nextHourRes
+    nextHourRes,
+    healthRes
   ] = await Promise.all([
     fetch('/api/history'),
-    fetch('/api/next_hour')
+    fetch('/api/next_hour'),
+    fetch('/api/health')
   ]);
 
   const history = await historyRes.json();
 
   const nh = await nextHourRes.json();
+
+  const health = await healthRes.json();
+
+  const databaseReady =
+    health.database === 'ready';
+
+  const databaseDot =
+    document.getElementById('databaseHealthDot');
+
+  databaseDot.className =
+    'health-state-dot ' +
+    (databaseReady ? 'ready' : 'unavailable');
+
+  document.getElementById(
+    'databaseHealthValue'
+  ).textContent =
+    databaseReady
+      ? 'Connected'
+      : 'Unavailable';
+
+  document.getElementById(
+    'readingCountValue'
+  ).textContent =
+    Number(health.reading_count).toLocaleString();
+
+  document.getElementById(
+    'latestReadingValue'
+  ).textContent =
+    health.latest_reading || 'No readings';
 
   currentThreshold = nh.threshold;
 
@@ -857,7 +1037,7 @@ async function loadDashboard() {
   document.getElementById(
     'liveStatus'
   ).textContent =
-    'live · refreshes every ' +
+    'demo · refreshes every ' +
     REFRESH_SECONDS +
     's';
 

@@ -44,6 +44,10 @@
     --blue-glow: #4DA6FF;
   }
 
+  html {
+    background: var(--ink);
+  }
+
 
   * {
     box-sizing: border-box;
@@ -56,6 +60,9 @@
 
   body {
     margin: 0;
+    max-width: 1600px;
+    min-height: 100vh;
+    margin-inline: auto;
 
     background:
       radial-gradient(
@@ -87,6 +94,13 @@
     color: inherit;
   }
 
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: 3px;
+  }
+
 
   /* =========================================================
      TOP BAR
@@ -97,40 +111,51 @@
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 14px;
-
-    margin-bottom: 24px;
-    padding-bottom: 18px;
-
+    gap: 18px;
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    margin: -24px calc(-1 * clamp(20px, 5vw, 56px)) 28px;
+    padding: 13px clamp(20px, 5vw, 56px);
     border-bottom: 1px solid var(--panel-line);
+    background: rgba(8, 11, 20, 0.94);
+    backdrop-filter: blur(16px);
   }
-
 
   .brand {
-    font-size: 15px;
-    font-weight: 600;
-
-    letter-spacing: -0.01em;
-
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    font-size: 14px;
   }
 
+  .brand {
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+  }
+
+  .brand-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .brand-copy small {
+    color: var(--ash);
+    font: 9px 'IBM Plex Mono', monospace;
+    letter-spacing: 0.12em;
+  }
 
   .brand-mark {
-    width: 9px;
-    height: 9px;
-
-    border-radius: 2px;
-
-    background: var(--teal);
-
-    display: inline-block;
-
-    box-shadow:
-      0 0 8px rgba(53, 224, 208, 0.65),
-      0 0 16px rgba(53, 224, 208, 0.18);
+    display: grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border: 1px solid rgba(53, 224, 208, 0.25);
+    border-radius: 10px;
+    background: var(--teal-soft);
+    color: var(--teal);
   }
 
 
@@ -171,17 +196,74 @@
 
   nav a.active {
     color: var(--paper);
-
-    background:
-      rgba(155, 124, 255, 0.08);
-
-    border: 1px solid
-      rgba(155, 124, 255, 0.20);
-
-    box-shadow:
-      0 0 18px rgba(155, 124, 255, 0.04);
+    background: var(--teal-soft);
+    border: 1px solid rgba(53, 224, 208, 0.18);
   }
 
+  .topbar-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ash);
+    font: 10px 'IBM Plex Mono', monospace;
+    white-space: nowrap;
+  }
+
+  .topbar-status .live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--teal);
+    box-shadow: 0 0 9px rgba(53, 224, 208, 0.55);
+  }
+
+  @media (max-width: 720px) {
+    body {
+      padding: 18px 16px 36px;
+    }
+
+    .topbar {
+      margin: -18px -16px 24px;
+      padding: 11px 16px;
+      gap: 10px;
+    }
+
+    .topbar {
+      align-items: flex-start;
+    }
+
+    nav {
+      width: auto;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      order: 3;
+    }
+
+    nav a {
+      flex: 0 0 auto;
+      padding-inline: 11px;
+    }
+
+    .topbar-status {
+      margin-left: auto;
+      padding-top: 8px;
+    }
+
+    .topbar-status-label {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      scroll-behavior: auto !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 
   /* =========================================================
      PAGE HEADER
@@ -370,29 +452,37 @@
   <div class="topbar">
 
     <div class="brand">
-      <span class="brand-mark"></span>
-      Predictive Thermal Memory
+      <span class="brand-mark" aria-hidden="true">TM</span>
+      <span class="brand-copy">
+        <span>Thermal Memory</span>
+        <small>SMART CLIMATE</small>
+      </span>
     </div>
 
-    <nav>
+    <nav aria-label="Primary navigation">
 
-      <a href="/" class="{{ 'active' if active_page == 'dashboard' else '' }}">
-        Dashboard
+      <a href="/" class="{{ 'active' if active_page == 'dashboard' else '' }}" {% if active_page == 'dashboard' %}aria-current="page"{% endif %}>
+        Overview
       </a>
 
-      <a href="/history" class="{{ 'active' if active_page == 'history' else '' }}">
+      <a href="/history" class="{{ 'active' if active_page == 'history' else '' }}" {% if active_page == 'history' %}aria-current="page"{% endif %}>
         History
       </a>
 
-      <a href="/controls" class="{{ 'active' if active_page == 'controls' else '' }}">
+      <a href="/controls" class="{{ 'active' if active_page == 'controls' else '' }}" {% if active_page == 'controls' %}aria-current="page"{% endif %}>
         Controls
       </a>
 
-      <a href="/how-it-works" class="{{ 'active' if active_page == 'how-it-works' else '' }}">
-        How it works
+      <a href="/how-it-works" class="{{ 'active' if active_page == 'how-it-works' else '' }}" {% if active_page == 'how-it-works' %}aria-current="page"{% endif %}>
+        Model
       </a>
 
     </nav>
+
+    <div class="topbar-status" aria-label="Demonstration environment">
+      <span class="live-dot"></span>
+      <span><span class="topbar-status-label">LOCAL DEMO · </span>SIMULATED DATA</span>
+    </div>
 
   </div>
 

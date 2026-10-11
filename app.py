@@ -386,6 +386,41 @@ def load_all_sensor_data():
     return df
 
 
+def get_system_health():
+
+    conn = None
+
+    try:
+        conn = get_db_connection()
+        row = conn.execute(
+            """
+            SELECT
+                COUNT(*) AS reading_count,
+                MAX(timestamp) AS latest_reading
+            FROM readings
+            """
+        ).fetchone()
+    except sqlite3.Error:
+        return {
+            "database_ready": False,
+            "reading_count": 0,
+            "latest_reading": None,
+            "data_status": "unavailable",
+        }
+    finally:
+        if conn is not None:
+            conn.close()
+
+    reading_count = int(row["reading_count"])
+
+    return {
+        "database_ready": True,
+        "reading_count": reading_count,
+        "latest_reading": row["latest_reading"],
+        "data_status": "available" if reading_count else "empty",
+    }
+
+
 # ============================================================
 # RESAMPLE TO MODEL SAMPLING RATE
 # ============================================================
@@ -625,7 +660,8 @@ def index():
 
     return render_template(
         "index.html",
-        active_page="dashboard"
+        active_page="dashboard",
+        model_ready=model is not None
     )
 
 
@@ -1358,7 +1394,8 @@ def controls_page():
 
     return render_template(
         "controls.html",
-        settings=view_settings
+        settings=view_settings,
+        active_page="controls"
     )
 
 
@@ -1574,6 +1611,14 @@ def how_it_works_page():
 
         "baseline_mae":
             BASELINE_MAE,
+
+        "improvement_pct":
+            round(
+                (1 - MODEL_MAE / BASELINE_MAE) * 100,
+                2
+            )
+            if MODEL_MAE is not None and BASELINE_MAE
+            else None,
 
         "trained_on_rows":
             TRAINED_ON_ROWS,
@@ -1862,6 +1907,38 @@ def api_live():
 # API - RECEIVE SENSOR DATA
 # ============================================================
 
+@app.route("/api/health")
+def api_health():
+
+    health = get_system_health()
+
+    return jsonify({
+        "status":
+            "ok"
+            if health["database_ready"] and model is not None
+            else "degraded",
+
+        "database":
+            "ready"
+            if health["database_ready"]
+            else "unavailable",
+
+        "model":
+            "ready"
+            if model is not None
+            else "unavailable",
+
+        "reading_count":
+            health["reading_count"],
+
+        "latest_reading":
+            health["latest_reading"],
+
+        "data_source":
+            "simulated",
+    })
+
+
 @app.route(
     "/api/record",
     methods=["POST"]
@@ -1873,34 +1950,46 @@ def api_record_sensor():
     )
 
 
-    if not data:
+    if not isinstance(data, dict):
 
         return jsonify({
             "status":
                 "error",
 
             "message":
-                "No JSON data received."
+                "A JSON object is required."
         }), 400
 
 
     try:
 
-        temperature = float(
-            data.get("temp")
-        )
+        temperature_value = data.get("temp")
+        humidity_value = data.get("rh", 0)
+        occupancy_value = data.get("pir", 0)
 
-        humidity = float(
-            data.get("rh", 0)
-        )
+        if any(
+            isinstance(value, bool)
+            for value in (
+                temperature_value,
+                humidity_value,
+                occupancy_value
+            )
+        ):
+            raise ValueError
 
-        occupancy = int(
-            data.get("pir", 0)
-        )
+        temperature = float(temperature_value)
+        humidity = float(humidity_value)
+        occupancy_number = float(occupancy_value)
+
+        if not occupancy_number.is_integer():
+            raise ValueError
+
+        occupancy = int(occupancy_number)
 
     except (
         TypeError,
-        ValueError
+        ValueError,
+        OverflowError
     ):
 
         return jsonify({
@@ -1909,7 +1998,7 @@ def api_record_sensor():
                 "error",
 
             "message":
-                "Invalid sensor values."
+                "Temperature, humidity, and occupancy must be numeric values."
         }), 400
 
 
@@ -1917,9 +2006,7 @@ def api_record_sensor():
     # BASIC SENSOR VALIDATION
     # --------------------------------------------------------
 
-    if not (
-        0 <= temperature <= 60
-    ):
+    if not np.isfinite(temperature) or not (0 <= temperature <= 60):
 
         return jsonify({
 
@@ -1931,9 +2018,7 @@ def api_record_sensor():
         }), 400
 
 
-    if not (
-        0 <= humidity <= 100
-    ):
+    if not np.isfinite(humidity) or not (0 <= humidity <= 100):
 
         return jsonify({
 
@@ -1960,10 +2045,17 @@ def api_record_sensor():
         }), 400
 
 
-    zone = data.get(
-        "zone",
-        "Main Living Area"
-    )
+    zone = data.get("zone", "Main Living Area")
+
+    if (
+        not isinstance(zone, str)
+        or not zone.strip()
+        or len(zone) > 80
+    ):
+        return jsonify({
+            "status": "error",
+            "message": "Zone must be a non-empty string of at most 80 characters."
+        }), 400
 
 
     now = datetime.now()
@@ -2030,7 +2122,7 @@ def api_record_sensor():
             occupancy,
 
         "zone":
-            zone,
+            zone.strip(),
 
         "timestamp":
             now.strftime(
@@ -2054,7 +2146,7 @@ def api_update_settings():
     )
 
 
-    if not data:
+    if not isinstance(data, dict):
 
         return jsonify({
 
@@ -2062,7 +2154,7 @@ def api_update_settings():
                 "error",
 
             "message":
-                "No settings received."
+                "A JSON object with settings is required."
         }), 400
 
 
@@ -2101,6 +2193,9 @@ def api_update_settings():
 
         if "target_temp" in data:
 
+            if isinstance(data["target_temp"], bool):
+                raise ValueError
+
             new_target = round(
                 float(
                     data[
@@ -2113,6 +2208,9 @@ def api_update_settings():
 
         if "min_comfort" in data:
 
+            if isinstance(data["min_comfort"], bool):
+                raise ValueError
+
             new_min = round(
                 float(
                     data[
@@ -2124,6 +2222,9 @@ def api_update_settings():
 
 
         if "max_comfort" in data:
+
+            if isinstance(data["max_comfort"], bool):
+                raise ValueError
 
             new_max = round(
                 float(
@@ -2203,6 +2304,15 @@ def api_update_settings():
     # --------------------------------------------------------
     # RANGE VALIDATION
     # --------------------------------------------------------
+
+    if not all(
+        np.isfinite(value)
+        for value in (new_min, new_target, new_max)
+    ):
+        return jsonify({
+            "status": "error",
+            "message": "Control temperatures must be finite numbers."
+        }), 400
 
     if not (
         18.0

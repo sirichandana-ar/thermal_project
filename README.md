@@ -33,7 +33,8 @@ simulate_data.py  -->  thermal_memory.db (SQLite)  -->  train_model.py  -->  the
 - **`/controls`** — Adjust the comfort threshold, strategy mode, comfort corridor, and pre-cool toggle. Changes here immediately affect the Dashboard's Cooling ON/OFF decision — both pages read from the same underlying setting.
   - **Strategy modes actually change the decision logic**: `predictive_auto` compares the model's forecast directly to the threshold; `eco` (±1.5°C) and `strict` (±0.5°C) apply real hysteresis, so cooling won't flicker on/off right at the threshold — once it's on, it stays on until the predicted temperature drops well below the threshold, and vice versa; `override` ignores the forecast entirely and reacts to the current sensor reading instead.
   - **The corridor bar is a real draggable control** — drag the teal (min) and orange (max) dots to set the comfort range; the white dot shows the live room temperature moving between them. Click "Apply & Sync to Model" to persist your changes.
-  - The status badge and live temperature dot auto-refresh every 8 seconds, same as the Dashboard.
+  - The status badge and temperature dot refresh every 8 seconds. These show
+    readings from the local demo database, not a physical sensor connection.
 - **`/history`** — Raw readings table (actual vs predicted vs delta) with a CSV export
 - **`/how-it-works`** — Architecture walkthrough and live model metrics (feature importances, MAE, training set size), all pulled from the trained model rather than hardcoded
 
@@ -44,15 +45,15 @@ simulate_data.py  -->  thermal_memory.db (SQLite)  -->  train_model.py  -->  the
 ## Setup
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 ## Run order
 
 ```bash
-python3 simulate_data.py    # 1. generate the dataset (creates thermal_memory.db)
-python3 train_model.py      # 2. train the model (creates thermal_model.joblib)
-python3 app.py              # 3. start the dashboard
+python simulate_data.py --seed 42   # 1. generate reproducible sample data
+python train_model.py               # 2. train and evaluate the models
+python app.py                       # 3. start the local dashboard
 ```
 
 Then open **http://127.0.0.1:5000** in your browser. The dashboard now
@@ -60,16 +61,18 @@ auto-refreshes every 8 seconds on its own.
 
 ## Making it look "live" for a presentation
 
-By default the dashboard just replays historical data, which looks static.
-To make it visibly active while presenting, open a **second terminal**
+By default the dashboard shows the generated historical readings. To make
+the demo feed visibly active while presenting, open a **second terminal**
 (keep `app.py` running in the first one) and run:
 
 ```bash
-python3 live_feed.py --interval 5
+python live_feed.py --interval 5
 ```
 
-This inserts one new sensor reading every 5 seconds using the real current
-time. Because the dashboard auto-refreshes every 8 seconds, you'll see:
+This appends a simulated reading every 5 seconds with the current timestamp.
+The readings remain synthetic; a current timestamp does not mean a physical
+sensor is connected. Because the dashboard auto-refreshes every 8 seconds,
+you'll see:
 - the chart's right edge extending with new points as you talk
 - the "Predicted next hour" and "Cooling ON/OFF" cards updating on their own
 - the "Live — last updated ..." timestamp at the bottom of the page ticking forward
@@ -92,7 +95,7 @@ For a reproducible dataset (e.g. to match figures already in your report),
 pass a fixed seed:
 
 ```bash
-python3 simulate_data.py --seed 42
+python simulate_data.py --seed 42
 ```
 
 ## What to put in your report
@@ -114,27 +117,33 @@ python3 simulate_data.py --seed 42
   ESP32 + DHT22 + PIR pipeline without changing any downstream code, since
   the database schema stays the same either way.
 
-## Pages
+## Reproducibility and limitations
 
-- **`/` — Dashboard**: live gauge, 48-hour chart, weekly memory heatmap
-- **`/controls`**: adjust the comfort target, HVAC strategy mode, and pre-cool toggle. Saved to SQLite (`hvac_controls` table) and survives a restart. The target temperature here is the *same* value the Dashboard uses to decide Cooling ON/OFF — the two pages are wired together, not independent.
-- **`/history`**: table of raw readings with actual vs predicted temperature and delta, plus a CSV export
-- **`/how-it-works`**: architecture walkthrough and live model metrics (feature importances, MAE, RMSE) pulled directly from the trained model, not hardcoded
+- Pass a fixed `--seed` to `simulate_data.py` to reproduce a dataset. The
+  simulator replaces the existing `readings` table, so back up any readings
+  you need before regenerating.
+- Evaluation uses a chronological 80/20 split and reports MAE/RMSE against a
+  persistence baseline. Metrics describe performance on synthetic data only;
+  they do not establish real-world accuracy.
+- The demonstration control action is software-only. It does not operate
+  physical HVAC equipment.
+- `app.py` enables Flask debug mode for local development. Do not expose this
+  development server to a public network; use a production WSGI server and
+  disable debug mode for any deployment.
 
-## Extra API endpoints
+## API endpoints
 
-- `POST /api/settings/update` — update `target_temp`, `strategy_mode`, `precool_enabled`
-- `GET /api/live` — current temperature, prediction, and HVAC status in one call
-- `POST /api/record` — accepts `{"temp": .., "rh": .., "pir": ..}`, the same shape a real ESP32 would send, so this is the drop-in point for real hardware later
-- `GET /api/export/csv` — downloads the full readings table as CSV
+- `POST /api/settings/update` — persist control settings to SQLite
+- `GET /api/live` — current telemetry and HVAC status
+- `GET /api/health` — model/database availability, reading count, latest
+  reading timestamp, and the declared simulated data source
+- `POST /api/record` — accept a reading as JSON (`temp`, `rh`, `pir`)
+- `GET /api/export/csv` — download the readings table
 
+## Tests
 
+Run the lightweight route and API smoke tests from the project directory:
 
-- Re-run `simulate_data.py` any time to regenerate a fresh dataset (it wipes
-  and repopulates the `readings` table).
-- The comfort threshold for the control action (27.5°C) is set in `app.py`
-  (`COMFORT_THRESHOLD`) — adjust it to whatever feels realistic for your
-  scenario.
-- `app.py` runs in Flask debug mode by default, which is fine for local
-  development/demo but should be turned off (`debug=False`) if you ever
-  deploy it anywhere public.
+```bash
+python -m unittest discover -s tests
+```

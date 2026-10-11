@@ -300,14 +300,14 @@ def main():
     print(
         f"Training period: "
         f"{train_df['timestamp'].min()} "
-        f"→ "
+        f"-> "
         f"{train_df['timestamp'].max()}"
     )
 
     print(
         f"Testing period:  "
         f"{test_df['timestamp'].min()} "
-        f"→ "
+        f"-> "
         f"{test_df['timestamp'].max()}"
     )
 
